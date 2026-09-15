@@ -23,3 +23,12 @@ repos:
       - id: secret-scan
       - id: yaml-xml-lint
       - id: trivy-config
+
+  - repo: local
+    hooks:
+      - id: aislop
+        name: Catch AI Slop (aislop)
+        entry: aislop scan --staged
+        language: node
+        additional_dependencies: ['aislop@^0.16.1']
+        pass_filenames: false
