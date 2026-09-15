@@ -1,0 +1,67 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Central Renovate configuration preset for bumuellp repositories",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":dependencyDashboard"
+  ],
+  "timezone": "Europe/Berlin",
+  "schedule": [
+    "before 6am on monday"
+  ],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "minimumReleaseAge": "3 days",
+  "packageRules": [
+    {
+      "description": "Group pre-commit hooks into a single weekly bundle",
+      "matchManagers": ["pre-commit"],
+      "groupName": "pre-commit hooks",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "pre-commit"
+    },
+    {
+      "description": "Group and pin GitHub Actions by full SHA for security",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "semanticCommitType": "ci",
+      "semanticCommitScope": "actions",
+      "pinDigests": true
+    },
+    {
+      "description": "Group linter and formatter updates together",
+      "matchPackageNames": [
+        "ruff",
+        "astral-sh/ruff-pre-commit",
+        "prettier",
+        "pre-commit/mirrors-prettier",
+        "markdownlint-cli2",
+        "DavidAnson/markdownlint-cli2",
+        "scanaislop/aislop",
+        "python-jsonschema/check-jsonschema"
+      ],
+      "groupName": "linters and formatters",
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "lint"
+    },
+    {
+      "description": "Python dependency management (uv / pyproject.toml)",
+      "matchManagers": ["pep621", "uv"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "python-deps"
+    },
+    {
+      "description": "Docker container base images and packages",
+      "matchManagers": ["dockerfile"],
+      "semanticCommitType": "build",
+      "semanticCommitScope": "docker"
+    },
+    {
+      "description": "Node.js and npm ecosystem",
+      "matchManagers": ["npm"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "deps"
+    }
+  ]
+}
