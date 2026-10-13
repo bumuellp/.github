@@ -28,6 +28,26 @@
     ],
     "automerge": false
   },
+  "docker-compose": {
+    "fileMatch": [
+      "(^|/)(docker-)?compose.*\\.ya?ml(\\.tftpl)?$",
+      "(^|/)compose.*\\.ya?ml(\\.tftpl)?$"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Automatically track GitHub release asset download URLs in any YAML config",
+      "fileMatch": [
+        "(^|/)config/.*\\.ya?ml$",
+        "(^|/).*\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/(?<assetName>[^\\s\"']+)"
+      ],
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "packageRules": [
     {
       "description": "Group pre-commit hooks into a single weekly bundle",
