@@ -37,6 +37,17 @@
   "customManagers": [
     {
       "customType": "regex",
+      "description": "Automatically track Docker images inside OpenTofu .tftpl compose files",
+      "fileMatch": [
+        "(^|/)docker-compose.*\\.ya?ml\\.tftpl$"
+      ],
+      "matchStrings": [
+        "image:\\s*(?<depName>[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+):(?<currentValue>[^\\s\"']+)"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
       "description": "Automatically track GitHub release asset download URLs in any YAML config",
       "fileMatch": [
         "(^|/)config/.*\\.ya?ml$",
