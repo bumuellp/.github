@@ -57,6 +57,13 @@
         "https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/(?<assetName>[^\\s\"']+)"
       ],
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)\\.tofu-version$"],
+      "matchStrings": ["(?<currentValue>[0-9.]+)"],
+      "depNameTemplate": "opentofu/opentofu",
+      "datasourceTemplate": "github-releases"
     }
   ],
   "packageRules": [
