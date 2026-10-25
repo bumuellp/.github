@@ -34,6 +34,15 @@
       "(^|/)compose.*\\.ya?ml(\\.tftpl)?$"
     ]
   },
+  "customDatasources": {
+    "github-api-versions": {
+      "defaultRegistryUrlTemplate": "https://api.github.com/versions",
+      "format": "json",
+      "transformTemplates": [
+        "{\"releases\": [*].{\"version\": @}}"
+      ]
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -64,9 +73,24 @@
       "matchStrings": ["(?<currentValue>[0-9.]+)"],
       "depNameTemplate": "opentofu/opentofu",
       "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "Track GitHub REST API calendar versions via .github-api-version",
+      "fileMatch": ["(^|/)\\.github-api-version$"],
+      "matchStrings": ["^(?<currentValue>\\d{4}-\\d{2}-\\d{2})\\s*$"],
+      "datasourceTemplate": "custom.github-api-versions",
+      "depNameTemplate": "github-rest-api",
+      "versioningTemplate": "regex:^(?<major>\\d{4})-(?<minor>\\d{2})-(?<patch>\\d{2})$"
     }
   ],
   "packageRules": [
+    {
+      "description": "Do not automerge GitHub REST API breaking calendar version upgrades",
+      "matchPackageNames": ["github-rest-api"],
+      "automerge": false,
+      "labels": ["api-breaking-change"]
+    },
     {
       "description": "Group pre-commit hooks into a single weekly bundle",
       "matchManagers": ["pre-commit"],
