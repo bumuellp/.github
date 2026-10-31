@@ -6,6 +6,8 @@
     ":semanticCommits",
     ":dependencyDashboard"
   ],
+  "assigneesFromCodeOwners": true,
+  "reviewersFromCodeOwners": true,
   "timezone": "Europe/Berlin",
   "schedule": [
     "before 6am on monday"
