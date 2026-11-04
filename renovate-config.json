@@ -131,10 +131,23 @@
       "semanticCommitScope": "python-deps"
     },
     {
-      "description": "Docker container base images and packages",
-      "matchManagers": ["dockerfile"],
+      "description": "Docker container base images and compose services",
+      "matchManagers": ["dockerfile", "docker-compose"],
       "semanticCommitType": "build",
       "semanticCommitScope": "docker"
+    },
+    {
+      "description": "Group non-major and digest Docker updates into a single bundle",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "groupName": "docker images"
+    },
+    {
+      "description": "Keep Python minor runtime tag upgrades separate from weekly Docker digest bundle",
+      "matchManagers": ["dockerfile", "docker-compose"],
+      "matchPackageNames": ["python"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": null
     },
     {
       "description": "Node.js and npm ecosystem",
@@ -147,6 +160,13 @@
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "npm dependencies"
+    },
+    {
+      "description": "Group major npm devDependency updates into a single bundle",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "npm major devDependencies"
     },
     {
       "description": "Rust and Cargo ecosystem",
