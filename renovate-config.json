@@ -147,6 +147,25 @@
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "npm dependencies"
+    },
+    {
+      "description": "Rust and Cargo ecosystem",
+      "matchManagers": ["cargo"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "rust-deps",
+      "rangeStrategy": "auto"
+    },
+    {
+      "description": "Group non-major Rust crate updates into a single bundle",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "rust dependencies"
+    },
+    {
+      "description": "Group major Rust crate updates into a single bundle",
+      "matchManagers": ["cargo"],
+      "matchUpdateTypes": ["major"],
+      "groupName": "rust major dependencies"
     }
   ]
 }
