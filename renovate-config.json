@@ -166,7 +166,7 @@
       "matchManagers": ["npm"],
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["major"],
-      "groupName": "npm major devDependencies"
+      "groupName": "npm devDependencies"
     },
     {
       "description": "Rust and Cargo ecosystem",
@@ -176,16 +176,17 @@
       "rangeStrategy": "auto"
     },
     {
-      "description": "Group non-major Rust crate updates into a single bundle",
+      "description": "Group non-breaking Rust crate updates into a single bundle",
       "matchManagers": ["cargo"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "rust dependencies"
     },
     {
-      "description": "Group major Rust crate updates into a single bundle",
+      "description": "Keep breaking 0.x minor Rust crate upgrades separate from routine bundle",
       "matchManagers": ["cargo"],
-      "matchUpdateTypes": ["major"],
-      "groupName": "rust major dependencies"
+      "matchCurrentVersion": "/^0\\./",
+      "matchUpdateTypes": ["minor"],
+      "groupName": null
     }
   ]
 }
