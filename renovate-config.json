@@ -140,7 +140,14 @@
       "description": "Node.js and npm ecosystem",
       "matchManagers": ["npm"],
       "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "rangeStrategy": "bump"
+    },
+    {
+      "description": "Group non-major npm dependency updates into a single bundle",
+      "matchManagers": ["npm"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "npm dependencies"
     }
   ]
 }
