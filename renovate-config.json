@@ -179,14 +179,20 @@
       "description": "Group non-breaking Rust crate updates into a single bundle",
       "matchManagers": ["cargo"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "rust dependencies"
+      "matchJsonata": ["$not(isBreaking = true)"],
+      "groupName": "rust dependencies",
+      "groupSlug": "rust-dependencies"
     },
     {
-      "description": "Keep breaking 0.x minor Rust crate upgrades separate from routine bundle",
+      "description": "Group breaking Rust crate upgrades sharing an upstream repository unless already in a monorepo group",
       "matchManagers": ["cargo"],
-      "matchCurrentVersion": "/^0\\./",
-      "matchUpdateTypes": ["minor"],
-      "groupName": null
+      "matchSourceUrls": ["/^https?:\\/\\/[^/]+\\/[^/]+\\/[^/]+/"],
+      "matchJsonata": [
+        "isBreaking = true and ($not($exists(groupName)) or groupName = null or groupName = \"\")"
+      ],
+      "groupName": "rust {{{sourceRepo}}}",
+      "groupSlug": "rust-{{{sourceRepoSlug}}}",
+      "separateMajorMinor": false
     }
   ]
 }
