@@ -131,6 +131,24 @@
       "semanticCommitScope": "python-deps"
     },
     {
+      "description": "Group non-major Python dependency updates into a single bundle",
+      "matchManagers": ["pep621", "uv"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "python dependencies"
+    },
+    {
+      "description": "mise toolchain management",
+      "matchManagers": ["mise"],
+      "semanticCommitType": "chore",
+      "semanticCommitScope": "tools"
+    },
+    {
+      "description": "Group non-major mise tool updates into a single bundle",
+      "matchManagers": ["mise"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "mise tools"
+    },
+    {
       "description": "Docker container base images and compose services",
       "matchManagers": ["dockerfile", "docker-compose"],
       "semanticCommitType": "build",
