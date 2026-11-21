@@ -1,10 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Central Renovate configuration preset for bumuellp repositories",
+  "description": "Central Renovate preset for bumuellp repos (config:best-practices includes dependencyDashboard, digest pinning, devDep pinning, configMigration, and abandonments; :semanticCommits forces Conventional Commits)",
   "extends": [
     "config:best-practices",
-    ":semanticCommits",
-    ":dependencyDashboard"
+    "customManagers:dockerfileVersions",
+    ":enablePreCommit",
+    ":semanticCommits"
   ],
   "assigneesFromCodeOwners": true,
   "reviewersFromCodeOwners": true,
@@ -15,6 +16,9 @@
   "prConcurrentLimit": 5,
   "prHourlyLimit": 2,
   "minimumReleaseAge": "3 days",
+  "internalChecksFilter": "strict",
+  "prCreation": "not-pending",
+  "platformAutomerge": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "schedule": [],
@@ -30,12 +34,6 @@
     ],
     "automerge": false
   },
-  "docker-compose": {
-    "managerFilePatterns": [
-      "/(^|/)(docker-)?compose.*\\.ya?ml(\\.tftpl)?$/",
-      "/(^|/)compose.*\\.ya?ml(\\.tftpl)?$/"
-    ]
-  },
   "customDatasources": {
     "github-api-versions": {
       "defaultRegistryUrlTemplate": "https://api.github.com/versions",
@@ -50,29 +48,28 @@
       "customType": "regex",
       "description": "Automatically track Docker images inside OpenTofu .tftpl compose files",
       "managerFilePatterns": [
-        "/(^|/)docker-compose.*\\.ya?ml\\.tftpl$/"
+        "/(^|/)(?:docker-)?compose.*\\.ya?ml\\.tftpl$/"
       ],
       "matchStrings": [
-        "image:\\s*(?<depName>[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+):(?<currentValue>[^\\s\"']+)"
+        "image:[ \\t]*[\"']?(?<depName>[a-z0-9./_-]+?):(?<currentValue>[^\\s\"'@]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?"
       ],
       "datasourceTemplate": "docker"
     },
     {
       "customType": "regex",
-      "description": "Automatically track GitHub release asset download URLs in any YAML config",
-      "managerFilePatterns": [
-        "/(^|/)config/.*\\.ya?ml$/",
-        "/(^|/).*\\.ya?ml$/"
-      ],
+      "description": "Track dependencies annotated with # renovate: comments in YAML files",
+      "managerFilePatterns": ["/(^|/).*\\.ya?ml$/"],
       "matchStrings": [
-        "https://github\\.com/(?<depName>[^/]+/[^/]+)/releases/download/(?<currentValue>[^/]+)/(?<assetName>[^\\s\"']+)"
+        "(?:^|\\n)[ \\t]*[a-zA-Z0-9_.-]+:[ \\t]*[\"']?(?:[a-z0-9./_-]+:)?(?<currentValue>[^\\s\"'@#]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?[ \\t]*#[ \\t]*renovate:[ \\t]*datasource=(?<datasource>[a-zA-Z0-9-._]+)[ \\t]+depName=(?<depName>[^\\s#]+)(?:[ \\t]+versioning=(?<versioning>[^\\s#]+))?",
+        "(?:^|\\n)[ \\t]*#[ \\t]*renovate:[ \\t]*datasource=(?<datasource>[a-zA-Z0-9-._]+)[ \\t]+depName=(?<depName>[^\\s#]+)(?:[ \\t]+versioning=(?<versioning>[^\\s#]+))?[ \\t]*\\n[ \\t]*[a-zA-Z0-9_.-]+:[ \\t]*[\"']?(?:[a-z0-9./_-]+:)?(?<currentValue>[^\\s\"'@]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?[\"']?"
       ],
-      "datasourceTemplate": "github-releases"
+      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{/if}}"
     },
     {
       "customType": "regex",
+      "description": "Track OpenTofu version in .tofu-version files",
       "managerFilePatterns": ["/(^|/)\\.tofu-version$/"],
-      "matchStrings": ["(?<currentValue>[0-9.]+)"],
+      "matchStrings": ["^v?(?<currentValue>[0-9.]+)\\s*$"],
       "depNameTemplate": "opentofu/opentofu",
       "datasourceTemplate": "github-releases"
     },
@@ -88,53 +85,52 @@
   ],
   "packageRules": [
     {
-      "description": "Do not automerge GitHub REST API breaking calendar version upgrades",
-      "matchPackageNames": ["github-rest-api"],
-      "automerge": false,
-      "labels": ["api-breaking-change"]
+      "description": "Skip minimumReleaseAge cooldown for trusted bumuellp repositories, actions, hooks, and container images",
+      "matchPackageNames": [
+        "/^bumuellp\\//",
+        "/^ghcr\\.io\\/bumuellp\\//",
+        "/^https:\\/\\/github\\.com\\/bumuellp\\//"
+      ],
+      "minimumReleaseAge": null
     },
     {
-      "description": "Group pre-commit hooks into a single weekly bundle",
+      "description": "pre-commit hook management",
       "matchManagers": ["pre-commit"],
-      "groupName": "pre-commit hooks",
       "semanticCommitType": "chore",
       "semanticCommitScope": "pre-commit"
     },
     {
-      "description": "Group and pin GitHub Actions by full SHA for security",
-      "matchManagers": ["github-actions"],
-      "groupName": "github-actions",
-      "semanticCommitType": "ci",
-      "semanticCommitScope": "actions",
-      "pinDigests": true
+      "description": "Group and automerge non-major pre-commit hook updates",
+      "matchManagers": ["pre-commit"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "pre-commit hooks",
+      "automerge": true
     },
     {
-      "description": "Group linter and formatter updates together",
-      "matchPackageNames": [
-        "ruff",
-        "astral-sh/ruff-pre-commit",
-        "prettier",
-        "pre-commit/mirrors-prettier",
-        "markdownlint-cli2",
-        "DavidAnson/markdownlint-cli2",
-        "scanaislop/aislop",
-        "python-jsonschema/check-jsonschema"
-      ],
-      "groupName": "linters and formatters",
-      "semanticCommitType": "chore",
-      "semanticCommitScope": "lint"
+      "description": "GitHub Actions management (SHA pinning provided by config:best-practices)",
+      "matchManagers": ["github-actions"],
+      "semanticCommitType": "ci",
+      "semanticCommitScope": "actions"
+    },
+    {
+      "description": "Group and automerge non-major GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "github-actions",
+      "automerge": true
     },
     {
       "description": "Python dependency management (uv / pyproject.toml)",
-      "matchManagers": ["pep621", "uv"],
+      "matchManagers": ["pep621", "poetry", "uv"],
       "semanticCommitType": "chore",
       "semanticCommitScope": "python-deps"
     },
     {
-      "description": "Group non-major Python dependency updates into a single bundle",
-      "matchManagers": ["pep621", "uv"],
+      "description": "Group and automerge non-major Python dependency updates",
+      "matchManagers": ["pep621", "poetry", "uv"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "python dependencies"
+      "groupName": "python dependencies",
+      "automerge": true
     },
     {
       "description": "mise toolchain management",
@@ -143,10 +139,11 @@
       "semanticCommitScope": "tools"
     },
     {
-      "description": "Group non-major mise tool updates into a single bundle",
+      "description": "Group and automerge non-major mise tool updates",
       "matchManagers": ["mise"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "mise tools"
+      "groupName": "mise tools",
+      "automerge": true
     },
     {
       "description": "Docker container base images and compose services",
@@ -155,10 +152,11 @@
       "semanticCommitScope": "docker"
     },
     {
-      "description": "Group non-major and digest Docker updates into a single bundle",
+      "description": "Group and automerge non-major and digest Docker updates into a single bundle",
       "matchManagers": ["dockerfile", "docker-compose"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
-      "groupName": "docker images"
+      "groupName": "docker images",
+      "automerge": true
     },
     {
       "description": "Keep Python minor runtime tag upgrades separate from weekly Docker digest bundle",
@@ -174,10 +172,11 @@
       "semanticCommitScope": "deps"
     },
     {
-      "description": "Group non-major npm dependency updates into a single bundle",
+      "description": "Group and automerge non-major npm dependency updates",
       "matchManagers": ["npm"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "npm dependencies"
+      "groupName": "npm dependencies",
+      "automerge": true
     },
     {
       "description": "Group major npm devDependency updates into a single bundle",
@@ -190,16 +189,16 @@
       "description": "Rust and Cargo ecosystem",
       "matchManagers": ["cargo"],
       "semanticCommitType": "chore",
-      "semanticCommitScope": "rust-deps",
-      "rangeStrategy": "auto"
+      "semanticCommitScope": "rust-deps"
     },
     {
-      "description": "Group non-breaking Rust crate updates into a single bundle",
+      "description": "Group and automerge non-breaking Rust crate updates",
       "matchManagers": ["cargo"],
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "matchJsonata": ["$not(isBreaking = true)"],
       "groupName": "rust dependencies",
-      "groupSlug": "rust-dependencies"
+      "groupSlug": "rust-dependencies",
+      "automerge": true
     },
     {
       "description": "Group breaking Rust crate upgrades sharing an upstream repository unless already in a monorepo group",
@@ -210,7 +209,29 @@
       ],
       "groupName": "rust {{{sourceRepo}}}",
       "groupSlug": "rust-{{{sourceRepoSlug}}}",
-      "separateMajorMinor": false
+      "separateMajorMinor": false,
+      "automerge": false,
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Automerge non-major updates detected via custom regex managers",
+      "matchManagers": ["custom.regex"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Require dashboard approval and disable automerge for GitHub REST API breaking calendar version upgrades",
+      "matchPackageNames": ["github-rest-api"],
+      "automerge": false,
+      "dependencyDashboardApproval": true,
+      "minimumReleaseAge": null,
+      "labels": ["api-breaking-change"]
+    },
+    {
+      "description": "Require Dependency Dashboard approval and disable automerge for major updates",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "dependencyDashboardApproval": true
     }
   ]
 }
