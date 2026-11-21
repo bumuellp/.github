@@ -1,0 +1,13 @@
+services:
+  mc-agent:
+    image: ghcr.io/bumuellp/mc-agent:0.1.0
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+%{ if extra_enabled ~}
+  db:
+    image: postgres:16.4-alpine
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+%{ endif ~}

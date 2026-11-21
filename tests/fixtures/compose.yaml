@@ -1,0 +1,7 @@
+---
+services:
+  proxy:
+    image: caddy:2.8.4
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

@@ -1,0 +1,19 @@
+---
+name: Sample Composite Action
+description: Fixture for testing preceding-line renovate comments and action SHA updates
+inputs:
+  hcloud-version:
+    description: Version of hcloud CLI
+    required: false
+    # renovate: datasource=github-releases depName=hetznercloud/cli
+    default: 'v1.70.2'
+  pre-commit-version:
+    description: Version of pre-commit
+    required: false
+    # renovate: datasource=pypi depName=pre-commit
+    default: '4.6.2'
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7

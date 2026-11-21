@@ -1,0 +1,7 @@
+---
+minecraft:
+  version: "26.3"  # renovate: datasource=mojang-java
+
+containers:
+  minecraft_server: "itzg/minecraft-server:2026.10.0"  # renovate: datasource=docker depName=itzg/minecraft-server
+  mc_agent: "ghcr.io/bumuellp/mc-agent:0.1.0@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"  # renovate: datasource=docker depName=ghcr.io/bumuellp/mc-agent
