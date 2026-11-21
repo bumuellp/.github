@@ -19,18 +19,21 @@ repos:
         files: ^(renovate-config\.json|\.github/renovate\.json)$
 
   - repo: https://github.com/bumuellp/cabumtain-hook
-    rev: v1.3.0
+    rev: v1.9.0
     hooks:
       - id: commit-msg
       - id: secret-scan
       - id: yaml-xml-lint
       - id: trivy-config
+        exclude: ^tests/fixtures/
+      - id: aislop
 
   - repo: local
     hooks:
-      - id: aislop
-        name: Catch AI Slop (aislop)
-        entry: aislop scan --staged
+      - id: renovate-extract-test
+        name: Test Renovate extraction against fixtures
+        entry: node --test scripts/test-renovate-extract.mjs
         language: node
-        additional_dependencies: ['aislop@^0.16.1']
+        additional_dependencies: ['renovate@44.93.5']
+        files: ^(renovate-config\.json|scripts/test-renovate-extract\.mjs|tests/fixtures/.*)$
         pass_filenames: false
